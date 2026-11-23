@@ -10,17 +10,17 @@ How much can a defense learn about run vs. pass from what it sees before the sna
 ## What it finds
 
 - **The pre-snap picture reveals a lot.** Always guessing a team's usual call is right about 60% of the time. Adding down, distance, clock, and score raises that to about 67%. Adding formation, personnel, tempo, and the previous plays raises it to about 74%. Motion, backfield count, hash mark, and quarterback position add under a point.
-- **Guessability is a stable trait.** A team's score in odd-numbered weeks correlates about +0.70 with its score in even-numbered weeks.
-- **There is no strong link between guessability and success.** Correlations with opponent-adjusted EPA per play are below, across 128 team-seasons, where anything within about 0.18 of zero cannot be told apart from noise. The data cannot rule out a moderate effect, but it makes a large one unlikely.
+- **Guessability is stable within a season but only modestly across seasons.** A team's score in odd-numbered weeks correlates about +0.70 with its score in even-numbered weeks, but its score in one season correlates only about +0.25 with the next season's, against about +0.4 for lean and +0.44 for opponent-adjusted EPA.
+- **There is no strong link between guessability and success.** Correlations with opponent-adjusted EPA per play are below, across 128 team-seasons, with 95% intervals from resampling whole teams (so repeated seasons of the same team are not treated as independent). An interval that includes zero cannot be told apart from no relationship. The data cannot rule out a moderate effect, but it makes a large one unlikely.
 
 | Correlation with opponent-adjusted EPA per play | All plays | Close games |
 |---|---|---|
-| Guessability | -0.11 | +0.12 |
-| Gain (how much the situation reveals beyond a team's overall run/pass rate) | +0.05 | +0.07 |
-| Lean (how lopsided a team's run/pass split is) | -0.28 | +0.19 |
-| Scramble rate | +0.12 | +0.10 |
+| Guessability | -0.11 [-0.26, +0.05] | +0.12 [-0.03, +0.28] |
+| Gain (how much the situation reveals beyond a team's overall run/pass rate) | +0.05 [-0.10, +0.21] | +0.07 [-0.10, +0.25] |
+| Lean (how lopsided a team's run/pass split is) | -0.28 [-0.45, -0.10] | +0.19 [-0.00, +0.35] |
+| Scramble rate | +0.12 [-0.09, +0.32] | +0.10 [-0.09, +0.29] |
 
-Lean is negative across all plays but turns positive in close games, which points to game score as the cause (teams that are trailing pass a lot, and teams that are leading run) and not to the split itself. Together, lean and gain explain about 8% of the differences in adjusted EPA across all plays.
+Lean is negative across all plays but turns positive in close games, which is consistent with game score being the cause (teams that are trailing pass a lot, and teams that are leading run), although this study does not establish it. Together, lean and gain explain about 8% of the differences in adjusted EPA across all plays.
 
 What does drive offensive success is outside the scope of this study. Execution, quarterback play, and the offensive line are obvious candidates to examine separately.
 
@@ -59,9 +59,52 @@ Guessability is shown against the league average for that season, with the Eagle
 - **Execution, quarterback play, and the offensive line.** None is measured.
 - **Preseason schedule rankings.** Those use the previous season's records, so they can miss badly, as with the Eagles' 2025 schedule.
 
+## Robustness checks
+
+The analysis was rerun under alternative choices (`scripts/league_robust.py`, 128 team-seasons, 2022 to 2025): forward-only validation (train on earlier weeks and test on later ones, starting from week 5), gradient-boosted trees in place of logistic regression, a ridge regression opponent adjustment with separate offense and defense effects for every team, and success rate (share of plays with EPA above zero) as a second measure of offensive success. Intervals resample whole teams.
+
+| Average accuracy | All plays | Close games |
+|---|---|---|
+| Logistic, odd/even weeks (headline) | 0.738 | 0.710 |
+| Logistic, forward-only | 0.735 | 0.706 |
+| Trees, odd/even weeks | 0.737 | 0.703 |
+| Trees, forward-only | 0.735 | 0.704 |
+| Always guess the team's usual call (forward-only) | 0.603 | 0.588 |
+
+Forward-only validation costs about 0.3 to 0.4 points and trees do no better than logistic regression, so neither the retrospective validation nor the linear model appears to understate predictability at this sample size.
+
+**Guessability and offensive success**, across the four prediction variants and three success measures:
+
+| | Plain correlation | Within-team correlation |
+|---|---|---|
+| All plays | -0.14 to -0.02, every interval includes zero (lowest bound about -0.30) | -0.07 to +0.08, every interval includes zero |
+| Close games | +0.05 to +0.21, a few intervals just clear zero | +0.13 to +0.30, 8 of 12 intervals exclude zero |
+
+No variant shows that being more guessable hurts a team. Across all plays the estimates are slightly negative but indistinguishable from zero, and a moderate cost (down to about -0.30) cannot be excluded. In close games every estimate is positive, and the within-team versions, which compare a team with its own usual level, are mostly positive beyond what chance would explain. Lean (how lopsided a team's run/pass split is) reverses sign between samples (-0.20 [-0.37, -0.02] across all plays and +0.20 [+0.02, +0.36] in close games, forward-only, against ridge-adjusted EPA), which is consistent with game score driving the pattern. These are many overlapping comparisons, so borderline intervals should not be read as established findings, and none of this shows cause.
+
+**The Eagles under forward-only validation**, accuracy (league average, rank of 32, 1 = easiest to guess):
+
+| Season | All plays, logistic | All plays, trees | Close games, logistic | Close games, trees |
+|---|---|---|---|---|
+| 2022 | 0.709 (0.725, 23rd) | 0.719 (0.727, 20th) | 0.712 (0.692, 13th) | 0.688 (0.693, 17th) |
+| 2023 | 0.686 (0.729, 29th) | 0.696 (0.725, 27th) | 0.656 (0.704, 30th) | 0.644 (0.697, 30th) |
+| 2024 | 0.746 (0.754, 24th) | 0.751 (0.756, 20th) | 0.704 (0.723, 24th) | 0.722 (0.724, 21st) |
+| 2025 | 0.703 (0.734, 27th) | 0.697 (0.732, 29th) | 0.664 (0.707, 29th) | 0.673 (0.702, 25th) |
+
+In 2025 the Eagles score 3 to 4 points below the league average in both samples, and 2025 is less guessable than 2024. Their ridge-adjusted EPA per play was +0.084 (3rd), +0.044 (8th), +0.072 (8th), and +0.016 (18th) from 2022 to 2025. Under the ridge adjustment their 2024 schedule ranks easiest of 32 in all plays (2nd in close games) and 2025 ranks 4th (3rd), so raw EPA flatters both years. The ridge penalty reached the top of the grid tried, so schedule effects are heavily shrunk; New England's 2025 schedule ranks easiest of 32 and its adjusted EPA ranks 3rd.
+
+## Known limitations of the method
+
+- **Team-seasons are not independent.** 32 teams appear in up to four seasons each and often keep their quarterback, coach, and system, so the real uncertainty is larger than the plain noise range suggests. The table above uses team-level bootstrap intervals (`scripts/robustness.py`), which are about as wide as the plain noise range. A within-team version, which removes each team's average and each season's average, also shows no sign that being more guessable hurts a team (the one interval that excludes zero, in close games, is positive).
+- **Validation.** The headline scores train and test on alternating weeks, so the model can use tendencies from later in the season to predict earlier games. Forward-only validation (train on earlier weeks, test on later ones) lowers average accuracy by about 0.3 to 0.4 points and leaves the conclusions unchanged (see Robustness checks).
+- **Model choice.** Logistic regression misses interactions, but gradient-boosted trees scored no higher on average (0.737 vs 0.738 across all plays), so at about 500 to 1,000 plays per team-season the linear model does not appear to understate predictability.
+- **The opponent adjustment is simple.** The main adjustment uses season averages of opposing defenses. A ridge regression with offense and defense effects for every team gives nearly the same adjusted EPA (correlation +0.98), but its penalty hit the top of the grid tried, so it shrinks schedule effects heavily.
+- **Stability is mostly within a season.** Guessability correlates about +0.25 from one season to the next, so a team's score reflects that season's personnel and system more than a lasting trait.
+- **Not compared with prior work.** The study has not been checked against published research on predicting run and pass calls, so its findings may not be new.
+
 ## How the method was checked
 
-- **Stability:** odd-vs-even-week correlation of about +0.70, so scores are not mostly noise.
+- **Stability within a season:** odd-vs-even-week correlation of about +0.70, so scores are not mostly noise.
 - **Sanity checks:** no team-season scores below a coin flip, and lean matches each team's raw pass rate.
 - **Problems found and fixed:** an earlier version skipped tied buckets, which leaked the answer and pushed some teams below chance; formation and personnel labels changed in 2023; scrambles are coded as runs; playoff games were included in early versions; and the motion data starts in 2022, so the study does too.
 
@@ -71,13 +114,15 @@ Guessability is shown against the league average for that season, with the Eagle
       league_final.py         main analysis (guessability, success, schedule adjustment); writes dashboard/team_seasons_final.csv
       league_model.py         formation and personnel version
       league_model_motion.py  adds motion, backfield, hash, and quarterback position
+      robustness.py            team-level bootstrap intervals and persistence across seasons
+      league_robust.py         forward-only validation, boosted trees, ridge opponent adjustment; writes dashboard/team_seasons_robust.csv
       series_pattern.py       run/pass patterns across a series of downs
       sneaks.py, sneaks_by_week.py, motion_rate.py, schedule_check.py   case-study checks
       old/                    earlier versions, kept for the history above
-    nfl_predictability/       dbt project (staging, intermediate, and mart models)
+    nfl_predictability/       dbt project (staging, intermediate, and mart models; 2022-2025 regular seasons)
     dashboard/                data behind the dashboard
 
-The headline numbers come from `scripts/league_final.py`. The dbt project builds the same kind of cleaned tables and formation-based scores, with tests on keys, downs, and play types.
+The headline numbers come from `scripts/league_final.py`. The robustness checks come from `scripts/league_robust.py` and `scripts/robustness.py`. The dbt project (2022 to 2025 regular seasons) builds the cleaned play tables and two earlier league-norm scores, which measure how unusual a team's calls are compared with the league and not how guessable it is. It has tests on keys, downs, and play types. The headline numbers come from the scripts, not from the dbt marts.
 
 ## How to run
 

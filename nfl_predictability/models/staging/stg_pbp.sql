@@ -20,7 +20,8 @@ select
     shotgun,
     no_huddle
 from read_parquet('../data/play_by_play_*.parquet', union_by_name=true)
-where season_type = 'REG'
+where season >= 2022
+  and season_type = 'REG'
   and play_type in ('pass', 'run')
   and down is not null
   and posteam is not null
