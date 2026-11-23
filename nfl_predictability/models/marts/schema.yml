@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: mart_team_predictability
+    description: "Share of plays where each team made the league-expected run/pass call, by season."
+    columns:
+      - name: team
+        data_tests:
+          - not_null
+      - name: predictability_score
+        data_tests:
+          - not_null
