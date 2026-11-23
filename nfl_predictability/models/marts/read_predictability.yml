@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: stg_participation
+    columns:
+      - name: game_id
+        data_tests:
+          - not_null
+      - name: play_id
+        data_tests:
+          - not_null
+
+  - name: mart_team_read_predictability
+    description: "Share of plays where a team's run/pass call matched the league-typical call for its pre-snap look (down, distance, score state, formation, personnel)."
+    columns:
+      - name: team
+        data_tests:
+          - not_null
+      - name: read_score
+        data_tests:
+          - not_null

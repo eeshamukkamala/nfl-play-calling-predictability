@@ -10,3 +10,16 @@ models:
       - name: predictability_score
         data_tests:
           - not_null
+
+  - name: mart_team_season_summary
+    description: "One row per team and season: pass rate, two predictability scores, and EPA on expected vs. unexpected calls."
+    columns:
+      - name: team
+        data_tests:
+          - not_null
+      - name: season
+        data_tests:
+          - not_null
+      - name: self_score
+        data_tests:
+          - not_null
