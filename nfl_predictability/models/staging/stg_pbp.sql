@@ -16,7 +16,9 @@ select
     game_seconds_remaining,
     score_differential,
     play_type,
-    epa
+    epa,
+    shotgun,
+    no_huddle
 from read_parquet('../data/play_by_play_*.parquet', union_by_name=true)
 where play_type in ('pass', 'run')
   and down is not null

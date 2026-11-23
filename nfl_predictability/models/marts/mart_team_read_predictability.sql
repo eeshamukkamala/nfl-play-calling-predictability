@@ -14,8 +14,8 @@ scored as (
         end as matched
     from {{ ref('int_play_formations') }} f
     join {{ ref('int_formation_baseline') }} b
-        using (down, distance_bucket, score_state, personnel_group)
-    where b.plays >= 100
+        using (down, distance_bucket, score_state, personnel_group, formation_group)
+    where b.plays >= 75
       and (b.league_pass_rate >= 0.60 or b.league_pass_rate <= 0.40)
 ),
 

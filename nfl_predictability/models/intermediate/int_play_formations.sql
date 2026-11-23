@@ -7,7 +7,12 @@ select
     s.score_state,
     s.is_pass,
     s.epa,
-    p.n_rb || 'RB-' || p.n_te || 'TE-' || p.n_wr || 'WR' as personnel_group
+    p.n_rb || 'RB-' || p.n_te || 'TE-' || p.n_wr || 'WR' as personnel_group,
+    case
+        when p.is_pistol then 'pistol'
+        when b.shotgun = 1 then 'shotgun'
+        else 'under_center'
+    end as formation_group
 from {{ ref('int_play_situations') }} s
 join {{ ref('stg_pbp') }} b on s.play_key = b.play_key
 join {{ ref('stg_participation') }} p
