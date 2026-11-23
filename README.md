@@ -1,86 +1,97 @@
 # NFL play-calling predictability
 
-Does being predictable cost an NFL offense success? Built with SQL, dbt, DuckDB, and Python on [nflverse](https://github.com/nflverse/nflverse-data) play-by-play data, 2020 to 2025, with the Philadelphia Eagles as a case study.
+How much can a defense learn about run vs. pass from what it sees before the snap, does that differ from team to team, and does it go with offensive success? Built with SQL, dbt, DuckDB, and Python on [nflverse](https://github.com/nflverse/nflverse-data) data for the 2022 to 2025 regular seasons, with the Philadelphia Eagles as a case study.
 
-## Questions
+## What this study does
 
-1. How predictable was a team, meaning how often could you guess run or pass from the down and distance?
-2. How successful was it anyway, measured as EPA (expected points added) per play, and do the two move together?
+1. **Measures predictability.** For each team-season, a small model tries to guess run or pass using only information visible before the snap. The share it gets right is the team's *guessability*.
+2. **Tests whether it matters.** It compares guessability with offensive success, measured as EPA (expected points added) per play, adjusted for how strong the opposing defenses were.
 
-## Answer
+## What it finds
 
-**There is no sign that predictability costs a team success.**
+- **The pre-snap picture reveals a lot.** Always guessing a team's usual call is right about 60% of the time. Adding down, distance, clock, and score raises that to about 67%. Adding formation, personnel, tempo, and the previous plays raises it to about 74%. Motion, backfield count, hash mark, and quarterback position add under a point.
+- **Guessability is a stable trait.** A team's score in odd-numbered weeks correlates about +0.70 with its score in even-numbered weeks.
+- **There is no strong link between guessability and success.** Correlations with opponent-adjusted EPA per play are below, across 128 team-seasons, where anything within about 0.18 of zero cannot be told apart from noise. The data cannot rule out a moderate effect, but it makes a large one unlikely.
 
-- Across 192 team-seasons (32 teams, 2020 to 2025), predictability explains about 1% of the differences in EPA per play in close games (R-squared 0.01). Every correlation is within noise.
-- Across all plays, a small link appears (gain +0.25, lean -0.24), but it goes away once the analysis is limited to close games. It was mostly game script: good teams lead, and teams that lead call plays that fit the situation.
-- The Eagles in 2024 were easy to guess from down and distance (67.1% correct against a league average of 64.5%, 5th of 32) and still ranked 4th in EPA per run play (+0.089 on 737 runs).
+| Correlation with opponent-adjusted EPA per play | All plays | Close games |
+|---|---|---|
+| Guessability | -0.11 | +0.12 |
+| Gain (how much the situation reveals beyond a team's overall run/pass rate) | +0.05 | +0.07 |
+| Lean (how lopsided a team's run/pass split is) | -0.28 | +0.19 |
+| Scramble rate | +0.12 | +0.10 |
 
-| Version | Guessability | Gain | Lean | R-squared |
+Lean is negative across all plays but turns positive in close games, which points to game score as the cause (teams that are trailing pass a lot, and teams that are leading run) and not to the split itself. Together, lean and gain explain about 8% of the differences in adjusted EPA across all plays.
+
+What does drive offensive success is outside the scope of this study. Execution, quarterback play, and the offensive line are obvious candidates to examine separately.
+
+## The Eagles as a case study
+
+Guessability is shown against the league average for that season, with the Eagles' rank of 32 (1 = easiest to guess). Adjusted EPA per play is shown with the rank of 32 (1 = best).
+
+| Season | Guessability, all plays | Guessability, close games | Adjusted EPA, all plays | Adjusted EPA, close games |
 |---|---|---|---|---|
-| A. All plays, guesses scored on the plays they came from | +0.03 | +0.25 | -0.24 | 0.06 |
-| B. All plays, each guess made from the team's other plays | +0.09 | +0.23 | -0.19 | 0.05 |
-| C. Close games only, each guess made from the team's other plays | +0.08 | -0.01 | +0.09 | 0.01 |
+| 2022 | 0.718 vs 0.729 (22nd) | 0.694 vs 0.697 (17th) | +0.103 (3rd) | +0.179 (2nd) |
+| 2023 | 0.668 vs 0.726 (32nd) | 0.667 vs 0.701 (27th) | +0.072 (8th) | +0.073 (13th) |
+| 2024 | 0.743 vs 0.758 (23rd) | 0.699 vs 0.728 (25th) | +0.068 (8th) | +0.054 (10th) |
+| 2025 | 0.718 vs 0.740 (25th) | 0.692 vs 0.713 (24th) | +0.001 (18th) | -0.001 (19th) |
 
-Correlations are with EPA per play across team-seasons. With 192 team-seasons, anything within about 0.14 of zero cannot be told apart from noise.
-
-Eagles in close games (first three quarters, score within 7), ranked against all 192 team-seasons:
-
-| Season | Plays | EPA per play | Rank of 192 |
-|---|---|---|---|
-| 2020 | 517 | -0.104 | 165 |
-| 2021 | 543 | +0.055 | 57 |
-| 2022 | 673 | +0.179 | 3 |
-| 2023 | 596 | +0.055 | 29 |
-| 2024 | 758 | +0.091 | 26 |
-| 2025 | 603 | +0.050 | 56 |
+- **By this measure the Eagles were not unusually easy to guess.** They scored below the league average in every season and both samples, and 2025 was no more guessable than 2024.
+- **The 2025 offense did decline.** Adjusted for opponents, EPA per play fell from +0.068 to +0.001. The 2025 and 2024 schedules were both on the easy side (adjustments of +0.034 and +0.036), so raw EPA flatters both years.
+- **They scrambled more than the league.** The Eagles' scramble rate was 7.2%, 7.7%, 7.9%, and 7.6% of dropbacks, against league rates of 4.6%, 5.0%, 5.3%, and 5.5%. The data cannot say whether that reflects pressure, quarterback style, or the line.
+- **Quarterback sneaks.** The Eagles led the league in sneaks every season (32, 43, 43, and 28), well above the league average of about 9 to 10. Use fell in 2025, and the conversion rate fell from 76.7% in 2024 to 60.7%, on a small number of attempts. Motion and sneak flags come from FTN charting data.
+- **Motion.** The Eagles' share of plays with pre-snap motion rose from 23.0% in 2023 to 44.6% in 2024 and 47.4% in 2025, while the league average rose from 45.3% to 49.3% to 55.1%. Their rank was 32nd, 32nd, 19th, and 27th of 32 across 2022 to 2025 (20.3% in 2022).
+- **After a short first-down run** (3 yards or less), the Eagles ran again on second down at or above the league rate in each season, and clearly above it in 2022, 2024, and 2025: 35.8% vs 31.2% in 2022, 33.6% vs 33.3% in 2023, 36.6% vs 32.0% in 2024, and 40.0% vs 32.2% in 2025.
 
 ## Definitions
 
-Plays are runs and passes on downs 1 to 4 in regulation, with a recorded EPA. Each play is placed in a bucket by down and distance (1-3, 4-6, 7-10, 11+ yards).
-
-- **Guessability:** the share of a team's plays you would call correctly by guessing that team's usual run or pass call in the same bucket, using only the team's other plays that season (at least 5 other plays, and buckets split exactly 50/50 are skipped).
-- **Lean:** the same, but always guessing the team's most common call overall. It measures how lopsided the run/pass split is.
-- **Gain:** guessability minus lean, which is how much the down and distance give away beyond the team's overall tendency.
+- **Guessability:** for each team-season, regular-season weeks are split into odd and even. A logistic regression is fit on one half and scored on the other, then the halves are swapped. Inputs are down, distance, field position, clock, score, timeouts, formation (pistol, shotgun, or under center), offensive personnel (running backs, tight ends, wide receivers), no-huddle, the previous two plays (run or pass), the previous play's yards, the play's number within the drive, and, for 2022 on, pre-snap motion, backfield count, hash mark, and quarterback position. Defensive alignment, routes, play-action, and anything that happens after the snap are left out on purpose.
+- **Run or pass label:** a quarterback scramble is a dropback that turned into a run, so scrambles (flagged by nflverse) are counted as called passes.
+- **Lean:** how often always guessing the team's usual call would be right. It measures how lopsided the run/pass split is.
+- **Gain:** how much better the full model predicts than that overall rate alone, measured by log loss.
+- **Opponent-adjusted EPA:** a team's EPA per play minus the average EPA per play its opponents' defenses allowed to other offenses that season (games against the team itself excluded). The adjustment varies by about 0.02 across teams, against about 0.08 for EPA per play itself. It agrees with a simpler opponent-win-percentage measure only moderately (correlations of -0.20, -0.27, -0.35, and -0.58 by season), so it is noisy for individual teams.
 - **Close games:** first three quarters, score within 7 points.
 
-## What this does not show
+## What this study cannot tell you
 
-- **Call type only.** The analysis sees run or pass, not formation, motion, tempo, who carries the ball, or the previous play. A defense could use all of those, so true guessability is likely higher than measured.
-- **Correlation, not cause.** Coaches choose their unusual calls, such as play-action off a run look, so a team doing better on unusual calls does not show that predictability causes worse results.
-- **A small effect is not ruled out.** Close games leave about 560 plays per team-season (minimum 381), and the filter drops the fourth quarter.
-- **Execution is separate.** Quarterback play, the offensive line, and the skill players explain far more of EPA than predictability does. The Eagles' strong 2022 and 2024 seasons are not explained by anything measured here.
+- **Whether a defense could read a specific offense.** The model sees run or pass and a limited pre-snap picture. A defender also reads route concepts, who gets the ball, and protection, so a person can legitimately beat this model.
+- **Why anything happened.** Correlation only, with 128 team-seasons and a margin of about 0.18.
+- **A small or moderate cost of predictability.** It is not ruled out.
+- **Execution, quarterback play, and the offensive line.** None is measured.
+- **Preseason schedule rankings.** Those use the previous season's records, so they can miss badly, as with the Eagles' 2025 schedule.
 
-## How the method changed
+## How the method was checked
 
-The first version scored how often a team made the league's usual call, which measures being unusual, not being guessable. A second version scored teams against their own tendencies, but it rewarded run-heavy teams: the 2024 Eagles passed on 44.8% of plays against a league rate of 57.0% and ranked 6th. Adding personnel and formation from nflverse participation data exposed a label change in 2023 (formation labels dropped from 7 to 3, and personnel strings started listing linemen, so personnel groups jumped from about 55 to 65 to 250 to 270). Counting only running backs, tight ends, and wide receivers, and taking shotgun from the play-by-play flag, made seasons comparable. Those models remain in the dbt project; the headline analysis uses the scripts, which measure guessability directly.
+- **Stability:** odd-vs-even-week correlation of about +0.70, so scores are not mostly noise.
+- **Sanity checks:** no team-season scores below a coin flip, and lean matches each team's raw pass rate.
+- **Problems found and fixed:** an earlier version skipped tied buckets, which leaked the answer and pushed some teams below chance; formation and personnel labels changed in 2023; scrambles are coded as runs; playoff games were included in early versions; and the motion data starts in 2022, so the study does too.
 
 ## Repo layout
 
-    nfl_predictability/          dbt project (11 models, 14 tests)
-      models/staging/            stg_pbp, stg_participation
-      models/intermediate/       situation and formation buckets, league baselines
-      models/marts/              team scores and a season summary
     scripts/
-      guess.py                   2024 guessability by team
-      runs.py                    2024 EPA per run play
-      league.py                  all 192 team-seasons, version A
-      league_close.py            versions B and C
+      league_final.py         main analysis (guessability, success, schedule adjustment); writes dashboard/team_seasons_final.csv
+      league_model.py         formation and personnel version
+      league_model_motion.py  adds motion, backfield, hash, and quarterback position
+      series_pattern.py       run/pass patterns across a series of downs
+      sneaks.py, sneaks_by_week.py, motion_rate.py, schedule_check.py   case-study checks
+      old/                    earlier versions, kept for the history above
+    nfl_predictability/       dbt project (staging, intermediate, and mart models)
+    dashboard/                data behind the dashboard
 
-dbt tests check unique and non-null play keys, downs of 1 to 4, play types of run or pass, and non-null scores, teams, and seasons. The season summary has 32 teams in every season.
+The headline numbers come from `scripts/league_final.py`. The dbt project builds the same kind of cleaned tables and formation-based scores, with tests on keys, downs, and play types.
 
 ## How to run
 
-    pip install dbt-duckdb duckdb pandas pyarrow
+    pip install dbt-duckdb duckdb pandas pyarrow scikit-learn
     mkdir -p data
-    for y in 2020 2021 2022 2023 2024 2025; do curl -L -o data/play_by_play_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_$y.parquet; done
-    python scripts/league_close.py
+    for y in 2022 2023 2024 2025; do
+      curl -L -o data/play_by_play_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_$y.parquet
+      curl -L -o data/participation_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp_participation/pbp_participation_$y.parquet
+      curl -L -o data/ftn_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/ftn_charting/ftn_charting_$y.parquet
+    done
+    python scripts/league_final.py
 
-For the dbt models, also download the participation files and build:
-
-    for y in 2020 2021 2022 2023 2024 2025; do curl -L -o data/participation_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp_participation/pbp_participation_$y.parquet; done
-    cd nfl_predictability
-    dbt build
+For the dbt models: `cd nfl_predictability && dbt build`.
 
 ## Data and license
 
-Play-by-play and participation data come from [nflverse](https://github.com/nflverse/nflverse-data) and are downloaded from its releases page, not stored in this repo. Check nflverse's terms before reusing the data. Code is MIT licensed.
+Play-by-play, participation, and FTN charting data come from [nflverse](https://github.com/nflverse/nflverse-data) and are downloaded from its releases page, not stored in this repo. Check nflverse's and FTN's terms before reusing the data. Code is MIT licensed.
