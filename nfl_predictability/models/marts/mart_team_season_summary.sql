@@ -15,6 +15,9 @@ select
     p.team,
     p.plays,
     round(p.pass_rate, 3) as pass_rate,
+    r.read_score,
+    r.read_rank,
+    r.scored_plays as read_scored_plays,
     round(lg.predictability_score, 3) as league_norm_score,
     lg.predictability_rank as league_norm_rank,
     round(sf.self_predictability, 3) as self_score,
@@ -23,6 +26,8 @@ select
     round(e.epa_unexpected, 3) as epa_when_unexpected,
     round(e.epa_gap, 3) as epa_gap
 from pass_rates p
+join {{ ref('mart_team_read_predictability') }} r
+    on p.season = r.season and p.team = r.team
 join {{ ref('mart_team_predictability') }} lg
     on p.season = lg.season and p.team = lg.team
 join {{ ref('mart_team_self_predictability') }} sf
