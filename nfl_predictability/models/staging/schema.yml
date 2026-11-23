@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: stg_pbp
+    description: "NFL run and pass plays, 2020-2025, from nflverse play-by-play data."
+    columns:
+      - name: play_key
+        data_tests:
+          - unique
+          - not_null
+      - name: posteam
+        data_tests:
+          - not_null
+      - name: down
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4]
+      - name: play_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['pass', 'run']
