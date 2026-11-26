@@ -1,12 +1,10 @@
 import sys
-import warnings
 import numpy as np
 import pandas as pd
 import duckdb
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-warnings.filterwarnings("ignore")
 pd.set_option("display.width", 200)
 use_relabel = 0 if "--no-relabel" in sys.argv else 1
 suffix = "" if use_relabel else "_norelabel"
