@@ -24,6 +24,12 @@ Lean is negative across all plays but turns positive in close games, which is co
 
 What does drive offensive success is outside the scope of this study. Execution, quarterback play, and the offensive line are obvious candidates to examine separately.
 
+## Dashboard
+
+![Tableau dashboard of team-level guessability and offensive success](dashboard/dashboard.png)
+
+*Tableau dashboard built from `dashboard/team_seasons_final.csv` (screenshot, all-plays sample). Top: all 128 team-seasons, guessability against opponent-adjusted EPA per play. Bottom: the Eagles against the league average.*
+
 ## The Eagles as a case study
 
 Guessability is shown against the league average for that season, with the Eagles' rank of 32 (1 = easiest to guess). Adjusted EPA per play is shown with the rank of 32 (1 = best).
