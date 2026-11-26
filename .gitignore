@@ -236,3 +236,7 @@ target/
 dbt_packages/
 logs/
 data/
+
+# macOS and dbt local files
+.DS_Store
+.user.yml

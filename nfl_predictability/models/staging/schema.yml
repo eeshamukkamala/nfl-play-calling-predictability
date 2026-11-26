@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: stg_pbp
-    description: "NFL run and pass plays, 2020-2025, from nflverse play-by-play data."
+    description: "NFL run and pass plays, 2022-2025, from nflverse play-by-play data."
     columns:
       - name: play_key
         data_tests:
@@ -21,3 +21,13 @@ models:
           - accepted_values:
               arguments:
                 values: ['pass', 'run']
+
+  - name: stg_participation
+    description: "Formation and personnel information for each play, from nflverse participation data."
+    columns:
+      - name: game_id
+        data_tests:
+          - not_null
+      - name: play_id
+        data_tests:
+          - not_null

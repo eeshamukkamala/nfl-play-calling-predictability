@@ -15,7 +15,7 @@ select
     qtr,
     game_seconds_remaining,
     score_differential,
-    play_type,
+    case when coalesce(qb_scramble, 0) = 1 then 'pass' else play_type end as play_type, 
     epa,
     shotgun,
     no_huddle

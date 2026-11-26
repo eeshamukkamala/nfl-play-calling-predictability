@@ -31,9 +31,9 @@ Guessability is shown against the league average for that season, with the Eagle
 | Season | Guessability, all plays | Guessability, close games | Adjusted EPA, all plays | Adjusted EPA, close games |
 |---|---|---|---|---|
 | 2022 | 0.718 vs 0.729 (22nd) | 0.694 vs 0.697 (17th) | +0.103 (3rd) | +0.179 (2nd) |
-| 2023 | 0.668 vs 0.726 (32nd) | 0.667 vs 0.701 (27th) | +0.072 (8th) | +0.073 (13th) |
+| 2023 | 0.669 vs 0.726 (32nd) | 0.667 vs 0.701 (27th) | +0.072 (8th) | +0.073 (13th) |
 | 2024 | 0.743 vs 0.758 (23rd) | 0.699 vs 0.728 (25th) | +0.068 (8th) | +0.054 (10th) |
-| 2025 | 0.718 vs 0.740 (25th) | 0.692 vs 0.713 (24th) | +0.001 (18th) | -0.001 (19th) |
+| 2025 | 0.718 vs 0.740 (25th) | 0.691 vs 0.713 (24th) | +0.001 (18th) | -0.001 (19th) |
 
 - **By this measure the Eagles were not unusually easy to guess.** They scored below the league average in every season and both samples, and 2025 was no more guessable than 2024.
 - **The 2025 offense did decline.** Adjusted for opponents, EPA per play fell from +0.068 to +0.001. The 2025 and 2024 schedules were both on the easy side (adjustments of +0.034 and +0.036), so raw EPA flatters both years.
@@ -106,7 +106,7 @@ In 2025 the Eagles score 3 to 4 points below the league average in both samples,
 
 - **Stability within a season:** odd-vs-even-week correlation of about +0.70, so scores are not mostly noise.
 - **Sanity checks:** no team-season scores below a coin flip, and lean matches each team's raw pass rate.
-- **Problems found and fixed:** an earlier version skipped tied buckets, which leaked the answer and pushed some teams below chance; formation and personnel labels changed in 2023; scrambles are coded as runs; playoff games were included in early versions; and the motion data starts in 2022, so the study does too.
+- **Problems found and fixed:** an earlier version skipped tied buckets, which leaked the answer and pushed some teams below chance; formation and personnel labels changed in 2023; scrambles are coded as runs in the raw data, so they are relabeled as passes; playoff games were included in early versions; and the motion data starts in 2022, so the study does too.
 
 ## Repo layout
 
@@ -118,25 +118,26 @@ In 2025 the Eagles score 3 to 4 points below the league average in both samples,
       league_robust.py         forward-only validation, boosted trees, ridge opponent adjustment; writes dashboard/team_seasons_robust.csv
       series_pattern.py       run/pass patterns across a series of downs
       sneaks.py, sneaks_by_week.py, motion_rate.py, schedule_check.py   case-study checks
-      old/                    earlier versions, kept for the history above
     nfl_predictability/       dbt project (staging, intermediate, and mart models; 2022-2025 regular seasons)
     dashboard/                data behind the dashboard
 
-The headline numbers come from `scripts/league_final.py`. The robustness checks come from `scripts/league_robust.py` and `scripts/robustness.py`. The dbt project (2022 to 2025 regular seasons) builds the cleaned play tables and two earlier league-norm scores, which measure how unusual a team's calls are compared with the league and not how guessable it is. It has tests on keys, downs, and play types. The headline numbers come from the scripts, not from the dbt marts.
+The headline numbers come from `scripts/league_final.py`. The robustness checks come from `scripts/league_robust.py` and `scripts/robustness.py`. The dbt project (2022 to 2025 regular seasons) builds the cleaned play tables, with scrambles counted as passes as in the scripts, and two earlier league-norm scores, which measure how unusual a team's calls are compared with the league and not how guessable it is. It has tests on keys, downs, and play types. The headline numbers come from the scripts, not from the dbt marts.
 
 ## How to run
 
-    pip install dbt-duckdb duckdb pandas pyarrow scikit-learn
+    python3 -m pip install -r requirements.txt 
     mkdir -p data
     for y in 2022 2023 2024 2025; do
       curl -L -o data/play_by_play_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_$y.parquet
       curl -L -o data/participation_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/pbp_participation/pbp_participation_$y.parquet
       curl -L -o data/ftn_$y.parquet https://github.com/nflverse/nflverse-data/releases/download/ftn_charting/ftn_charting_$y.parquet
     done
-    python scripts/league_final.py
+    python3 scripts/league_final.py
 
 For the dbt models: `cd nfl_predictability && dbt build`.
 
 ## Data and license
+Data was pulled from nflverse on November 23, 2026. nflverse revises its data over time, so rerunning on a later download can shift adjusted EPA slightly.
+
 
 Play-by-play, participation, and FTN charting data come from [nflverse](https://github.com/nflverse/nflverse-data) and are downloaded from its releases page, not stored in this repo. Check nflverse's and FTN's terms before reusing the data. Code is MIT licensed.
